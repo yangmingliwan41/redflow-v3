@@ -1,0 +1,73 @@
+version: '3.8'
+
+# 红流云创 V3 Docker部署配置
+# 包含MySQL数据库和后端API服务
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: redflow-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-redflow_root_password}
+      MYSQL_DATABASE: ${DB_NAME:-redflow_db}
+      MYSQL_USER: ${DB_USER:-redflow_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-redflow_password}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD:-redflow_root_password}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - redflow-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    container_name: redflow-backend
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-redflow_user}
+      DB_PASSWORD: ${DB_PASSWORD:-redflow_password}
+      DB_NAME: ${DB_NAME:-redflow_db}
+      SESSION_SECRET: ${SESSION_SECRET:-change_this_secret_in_production}
+      PORT: ${PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-production}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5174}
+    ports:
+      - "${PORT:-3000}:3000"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - redflow-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: redflow-frontend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - redflow-network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  redflow-network:
+    driver: bridge

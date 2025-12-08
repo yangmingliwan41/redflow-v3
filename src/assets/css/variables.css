@@ -1,0 +1,148 @@
+:root {
+  /* 配色方案 - 现代简约风格 */
+  --bg-body: #F4F5F7;
+  --bg-sidebar: #FFFFFF;
+  --bg-card: #FFFFFF;
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* 主色调 - 小红书红 */
+  --primary: #FF2442;
+  --primary-hover: #FF4D6A;
+  --primary-active: #D91C36;
+  --primary-light: #FFF0F2;
+  --primary-fade: rgba(255, 36, 66, 0.08);
+  --primary-gradient: linear-gradient(135deg, #FF2442 0%, #FF4D6A 100%);
+  
+  /* 状态颜色 */
+  --success: #10B981;
+  --success-hover: #059669;
+  --success-light: #D1FAE5;
+  --success-fade: rgba(16, 185, 129, 0.08);
+  
+  --warning: #F59E0B;
+  --warning-hover: #D97706;
+  --warning-light: #FEF3C7;
+  --warning-fade: rgba(245, 158, 11, 0.08);
+  
+  --error: #EF4444;
+  --error-hover: #DC2626;
+  --error-light: #FEE2E2;
+  --error-fade: rgba(239, 68, 68, 0.08);
+  
+  --info: #3B82F6;
+  --info-hover: #2563EB;
+  --info-light: #DBEAFE;
+  --info-fade: rgba(59, 130, 246, 0.08);
+  
+  /* 辅助色 */
+  --blue: #3B82F6;
+  --blue-light: #DBEAFE;
+  --green: #10B981;
+  --green-light: #D1FAE5;
+  --orange: #F59E0B;
+  --orange-light: #FEF3C7;
+  --purple: #8B5CF6;
+  --purple-light: #EDE9FE;
+  
+  /* 文本颜色 */
+  --text-main: #333333;
+  --text-sub: #666666;
+  --text-secondary: #999999;
+  --text-placeholder: #CCCCCC;
+  --text-disabled: #E5E5E5;
+  --text-inverse: #FFFFFF;
+  
+  /* 边框颜色 */
+  --border-color: #EEEEEE;
+  --border-hover: #E0E0E0;
+  --border-active: #CCCCCC;
+  --border-error: var(--error);
+  
+  /* 圆角 */
+  --radius-xl: 24px;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
+  --radius-xs: 4px;
+  --radius-full: 9999px;
+  
+  /* 阴影 */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 16px 48px rgba(0, 0, 0, 0.08);
+  --shadow-focus: 0 0 0 3px var(--primary-fade);
+  
+  /* 间距系统 (8px基准) */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
+  /* 动画时长 */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  
+  /* 缓动函数 */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* 响应式断点 */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+  
+  /* 布局 */
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --container-max-width: 1200px;
+  
+  /* Z-index层级 */
+  --z-base: 1;
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+  
+  /* 字体大小 */
+  --font-xs: 12px;
+  --font-sm: 14px;
+  --font-base: 16px;
+  --font-lg: 18px;
+  --font-xl: 20px;
+  --font-2xl: 24px;
+  --font-3xl: 30px;
+  --font-4xl: 36px;
+  
+  /* 行高 */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  
+  /* 字重 */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+}
+
+/* 深色模式支持（预留） */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* 深色模式变量可以在这里定义 */
+    /* 暂时保持浅色模式，后续可以扩展 */
+  }
+}
+
+

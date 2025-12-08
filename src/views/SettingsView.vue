@@ -1,0 +1,947 @@
+<template>
+  <PageContainer size="xl">
+    <PageHeader
+      title="系统设置"
+      subtitle="配置API密钥和服务设置"
+    />
+
+    <!-- 模拟模式开关 -->
+    <div class="mock-mode-section">
+      <div class="mock-mode-card">
+        <div class="mock-mode-header">
+          <div>
+            <h3>🧪 测试模式（模拟API）</h3>
+            <p class="mock-mode-desc">开启后使用模拟数据，不消耗真实API费用。用于功能测试和调试。</p>
+          </div>
+          <label class="mock-mode-toggle">
+            <input
+              type="checkbox"
+              :checked="mockMode"
+              @change="handleMockModeChange"
+            />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div v-if="mockMode" class="mock-mode-notice">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5"></path>
+            <path d="M2 12l10 5 10-5"></path>
+          </svg>
+          <span>当前处于模拟模式，所有AI调用将返回模拟数据，不会产生费用。</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <!-- DeepSeek配置卡片 -->
+      <div class="config-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon" style="background: #1a1a1a;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                <path d="M2 17l10 5 10-5"></path>
+                <path d="M2 12l10 5 10-5"></path>
+              </svg>
+            </div>
+            <div>
+              <h3>DeepSeek API</h3>
+              <p class="card-subtitle">文本生成服务</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>
+              <span>API Key</span>
+              <button
+                type="button"
+                class="toggle-visibility"
+                @click="toggleVisibility('deepseek')"
+                :title="showDeepseekKey ? '隐藏' : '显示'"
+              >
+                <svg v-if="showDeepseekKey" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </label>
+            <div class="input-wrapper">
+              <input
+                v-model="deepseekApiKey"
+                :type="showDeepseekKey ? 'text' : 'password'"
+                :value="displayDeepseekKey"
+                @input="handleApiKeyInput('deepseek', $event)"
+                @blur="saveApiKey('DEEPSEEK_API_KEY', deepseekApiKey)"
+                placeholder="sk-..."
+                class="api-input"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>API Endpoint（可选）</label>
+            <input
+              v-model="deepseekEndpoint"
+              type="text"
+              placeholder="https://api.deepseek.com/chat/completions"
+              @blur="saveApiKey('DEEPSEEK_API_ENDPOINT', deepseekEndpoint)"
+              class="api-input"
+            />
+          </div>
+          <div class="form-group">
+            <label>Model（可选）</label>
+            <input
+              v-model="deepseekModel"
+              type="text"
+              placeholder="deepseek-chat"
+              @blur="saveApiKey('DEEPSEEK_MODEL', deepseekModel)"
+              class="api-input"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Google GenAI配置卡片 -->
+      <div class="config-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon" style="background: #4285F4;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="2" x2="12" y2="6"></line>
+                <line x1="12" y1="18" x2="12" y2="22"></line>
+                <line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line>
+                <line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line>
+                <line x1="2" y1="12" x2="6" y2="12"></line>
+                <line x1="18" y1="12" x2="22" y2="12"></line>
+                <line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line>
+                <line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line>
+              </svg>
+            </div>
+            <div>
+              <h3>Google GenAI API</h3>
+              <p class="card-subtitle">图片生成服务（OpenAI兼容模式）</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <label>
+              <span>API Key</span>
+              <button
+                type="button"
+                class="toggle-visibility"
+                @click="toggleVisibility('google')"
+                :title="showGoogleKey ? '隐藏' : '显示'"
+              >
+                <svg v-if="showGoogleKey" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+                <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </label>
+            <div class="input-wrapper">
+              <input
+                v-model="googleApiKey"
+                :type="showGoogleKey ? 'text' : 'password'"
+                :value="displayGoogleKey"
+                @input="handleApiKeyInput('google', $event)"
+                @blur="saveApiKey('GOOGLE_API_KEY', googleApiKey)"
+                placeholder="输入API Key"
+                class="api-input"
+              />
+            </div>
+            <p class="form-hint">
+              推荐使用：
+              <a href="https://api.laozhang.ai/register/?aff_code=b57h" target="_blank">laozhang.ai</a>
+            </p>
+          </div>
+          <div class="form-group">
+            <label>API Endpoint</label>
+            <input
+              v-model="googleEndpoint"
+              type="text"
+              placeholder="https://api.laozhang.ai/v1/chat/completions"
+              @blur="saveApiKey('GOOGLE_API_ENDPOINT', googleEndpoint)"
+              class="api-input"
+            />
+            <p class="form-hint">OpenAI兼容模式的API端点</p>
+          </div>
+          <div class="form-group">
+            <label>Model</label>
+            <input
+              v-model="googleModel"
+              type="text"
+              placeholder="gemini-3-pro-image-preview"
+              @blur="saveApiKey('GOOGLE_MODEL', googleModel)"
+              class="api-input"
+            />
+            <p class="form-hint">支持的模型：gemini-3-pro-image-preview, gemini-2.5-flash 等</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 图片生成Prompt配置卡片 -->
+      <div class="config-card">
+        <div class="card-header">
+          <div class="card-title-group">
+            <div class="card-icon" style="background: #8B5CF6;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+              </svg>
+            </div>
+            <div>
+              <h3>图片生成 Prompt 模板</h3>
+              <p class="card-subtitle">自定义文生图模式的图片生成提示词</p>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+              <label style="margin: 0;">自定义 Prompt 模板（可选）</label>
+              <label class="debug-toggle">
+                <input
+                  type="checkbox"
+                  :checked="showPromptDebug"
+                  @change="handleDebugToggle"
+                />
+                <span>调试模式（显示原始Prompt）</span>
+              </label>
+            </div>
+            <textarea
+              v-model="customImagePrompt"
+              placeholder="留空则使用内置的默认 Prompt 模板"
+              class="prompt-textarea"
+              rows="12"
+              @blur="saveCustomPrompt"
+            ></textarea>
+            <p class="form-hint">
+              可用变量：
+              <code>{"{{page_content}}"}</code> - 页面内容
+              <code>{"{{page_type}}"}</code> - 页面类型（cover/content）
+              <code>{"{{page_index}}"}</code> - 页码（从1开始）
+              <code>{"{{total_pages}}"}</code> - 总页数
+              <code>{"{{topic}}"}</code> - 主题
+              <code>{"{{full_outline}}"}</code> - 完整大纲
+            </p>
+            <div v-if="showPromptDebug" class="debug-prompt-section">
+              <div class="debug-prompt-header">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="12"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>调试信息：原始 Prompt 模板</span>
+              </div>
+              <div class="debug-prompt-content">
+                <pre>{{ getDefaultPromptTemplate() }}</pre>
+              </div>
+            </div>
+            <div style="margin-top: 12px;">
+              <button class="btn btn-secondary" @click="resetPrompt" style="margin-right: 8px;">
+                恢复默认
+              </button>
+              <button class="btn btn-primary" @click="saveCustomPrompt">
+                保存
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-section">
+      <h3>使用说明</h3>
+      <ul>
+        <li>文本生成使用 <strong>DeepSeek</strong> API，需要配置 DeepSeek API Key</li>
+        <li>图片生成使用 <strong>Google GenAI</strong> API（OpenAI兼容模式），支持自定义端点</li>
+        <li>所有配置保存在浏览器本地存储中，不会上传到服务器</li>
+        <li>API Key 配置后立即生效，无需重启</li>
+        <li>点击眼睛图标可以显示/隐藏 API Key，保护隐私</li>
+      </ul>
+      <div style="margin-top: 16px;">
+        <button class="btn btn-secondary" @click="clearLocalStorage">
+          清理本地存储（API 密钥 & 历史记录）
+        </button>
+      </div>
+    </div>
+  </PageContainer>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { PageContainer, PageHeader } from '../components/layout'
+
+const deepseekApiKey = ref('')
+const deepseekEndpoint = ref('')
+const deepseekModel = ref('')
+const googleApiKey = ref('')
+const googleEndpoint = ref('')
+const googleModel = ref('')
+
+const showDeepseekKey = ref(false)
+const showGoogleKey = ref(false)
+const mockMode = ref(false)
+const customImagePrompt = ref('')
+const showPromptDebug = ref(false)
+
+// 打码显示的API Key
+const displayDeepseekKey = computed(() => {
+  if (!deepseekApiKey.value) return ''
+  if (showDeepseekKey.value) return deepseekApiKey.value
+  return maskApiKey(deepseekApiKey.value)
+})
+
+const displayGoogleKey = computed(() => {
+  if (!googleApiKey.value) return ''
+  if (showGoogleKey.value) return googleApiKey.value
+  return maskApiKey(googleApiKey.value)
+})
+
+// 打码函数：显示前4位和后4位，中间用*替代
+const maskApiKey = (key: string): string => {
+  if (key.length <= 8) return '•'.repeat(key.length)
+  const start = key.substring(0, 4)
+  const end = key.substring(key.length - 4)
+  const middle = '•'.repeat(Math.max(0, key.length - 8))
+  return `${start}${middle}${end}`
+}
+
+const toggleVisibility = (type: 'deepseek' | 'google') => {
+  if (type === 'deepseek') {
+    showDeepseekKey.value = !showDeepseekKey.value
+  } else {
+    showGoogleKey.value = !showGoogleKey.value
+  }
+}
+
+const handleApiKeyInput = (type: 'deepseek' | 'google', event: Event) => {
+  const value = (event.target as HTMLInputElement).value
+  if (type === 'deepseek') {
+    deepseekApiKey.value = value
+  } else {
+    googleApiKey.value = value
+  }
+}
+
+const loadApiKeys = () => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    deepseekApiKey.value = localStorage.getItem('DEEPSEEK_API_KEY') || ''
+    deepseekEndpoint.value = localStorage.getItem('DEEPSEEK_API_ENDPOINT') || ''
+    deepseekModel.value = localStorage.getItem('DEEPSEEK_MODEL') || ''
+    googleApiKey.value = localStorage.getItem('GOOGLE_API_KEY') || ''
+    googleEndpoint.value = localStorage.getItem('GOOGLE_API_ENDPOINT') || 'https://api.laozhang.ai/v1/chat/completions'
+    googleModel.value = localStorage.getItem('GOOGLE_MODEL') || 'gemini-3-pro-image-preview'
+    // 加载模拟模式设置
+    const savedMockMode = localStorage.getItem('MOCK_MODE')
+    mockMode.value = savedMockMode === 'true'
+    // 加载自定义prompt
+    customImagePrompt.value = localStorage.getItem('CUSTOM_IMAGE_PROMPT') || ''
+    // 加载调试模式设置
+    const savedDebugMode = localStorage.getItem('PROMPT_DEBUG_MODE')
+    showPromptDebug.value = savedDebugMode === 'true'
+  }
+}
+
+const handleDebugToggle = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked
+  showPromptDebug.value = checked
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem('PROMPT_DEBUG_MODE', checked ? 'true' : 'false')
+  }
+}
+
+const getDefaultPromptTemplate = () => {
+  return `请生成一张小红书风格的图文内容图片。
+【合规特别注意的】注意不要带有任何小红书的logo，不要有右下角的用户id以及logo
+【合规特别注意的】用户给到的参考图片里如果有水印和logo（尤其是注意右下角，左上角），请一定要去掉
+
+页面内容：
+{{page_content}}
+
+页面类型：{{page_type}}
+
+如果当前页面类型不是封面页的话，你要参考最后一张图片作为封面的样式
+
+后续生成风格要严格参考封面的风格，要保持风格统一。
+
+设计要求：
+
+1. 整体风格
+- 小红书爆款图文风格
+- 清新、精致、有设计感
+- 适合年轻人审美
+- 配色和谐，视觉吸引力强
+
+2. 文字排版
+- 文字清晰可读，字号适中
+- 重要信息突出显示
+- 排版美观，留白合理
+- 支持 emoji 和符号
+- 如果是封面，标题要大而醒目
+
+3. 视觉元素
+- 背景简洁但不单调
+- 可以有装饰性元素（如图标、插画）
+- 配色温暖或清新
+- 保持专业感
+
+4. 页面类型特殊要求
+
+[封面] 类型：
+- 标题占据主要位置，字号最大
+- 副标题居中或在标题下方
+- 整体设计要有吸引力和冲击力
+- 背景可以更丰富，有视觉焦点
+
+[内容] 类型：
+- 信息层次分明
+- 列表项清晰展示
+- 重点内容用颜色或粗体强调
+- 可以有小图标辅助说明
+
+5. 技术规格
+- 竖版 3:4 比例（小红书标准）
+- 高清画质
+- 适合手机屏幕查看
+- 所有文字内容必须完整呈现
+- 【特别注意】无论是给到的图片还是参考文字，请仔细思考，让其符合正确的竖屏观看的排版，不能左右旋转或者是倒置。
+
+6. 整体风格一致性
+为确保所有页面风格统一，请参考完整的内容大纲和用户原始需求来确定：
+- 整体色调和配色方案
+- 设计风格（清新/科技/温暖/专业等）
+- 视觉元素的一致性
+- 排版布局的统一风格
+
+用户原始需求：
+{{topic}}
+
+完整内容大纲参考：
+---
+{{full_outline}}
+---
+
+请根据以上要求，生成一张精美的小红书风格图片。请直接给出图片，不要有任何手机边框，或者是白色留边。`
+}
+
+const handleMockModeChange = (event: Event) => {
+  const checked = (event.target as HTMLInputElement).checked
+  mockMode.value = checked
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.setItem('MOCK_MODE', checked ? 'true' : 'false')
+  }
+  // 提示用户
+  if (checked) {
+    console.log('🧪 模拟模式已开启，所有AI调用将使用模拟数据')
+  } else {
+    console.log('✅ 模拟模式已关闭，将使用真实API')
+  }
+}
+
+// 清理 API Key，移除可能的特殊字符和非 ASCII 字符
+// 注意：只移除明显的无效字符，不要过度清理
+const cleanApiKey = (key: string): string => {
+  if (!key) return ''
+  let cleaned = key.trim()
+
+  // 如果用户把整行 "Bearer sk-xxx" 粘进来，先去掉 Bearer 前缀
+  const lower = cleaned.toLowerCase()
+  if (lower.startsWith('bearer ')) {
+    cleaned = cleaned.slice(7).trim()
+  }
+
+  // 检查是否包含非 ASCII 字符
+  const hasNonAscii = /[^\x00-\x7F]/.test(cleaned)
+  
+  if (hasNonAscii) {
+    // 只移除非 ASCII 字符，保留所有 ASCII 可打印字符（32-126）
+    const beforeLength = cleaned.length
+    cleaned = cleaned
+      .split('')
+      .filter(char => {
+        const code = char.charCodeAt(0)
+        // 保留 ASCII 可打印字符（32-126）
+        return code >= 32 && code <= 126
+      })
+      .join('')
+      .trim()
+    
+    // 如果清理后长度变化超过5%，记录警告
+    if (cleaned.length < beforeLength * 0.95) {
+      console.warn('API Key 清理后长度变化:', {
+        before: beforeLength,
+        after: cleaned.length,
+        beforePrefix: key.substring(0, 20),
+        afterPrefix: cleaned.substring(0, 20)
+      })
+    }
+  }
+
+  return cleaned
+}
+
+const saveCustomPrompt = () => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    if (customImagePrompt.value.trim()) {
+      localStorage.setItem('CUSTOM_IMAGE_PROMPT', customImagePrompt.value.trim())
+      alert('Prompt 模板已保存')
+    } else {
+      localStorage.removeItem('CUSTOM_IMAGE_PROMPT')
+      alert('已清除自定义 Prompt，将使用默认模板')
+    }
+  }
+}
+
+const resetPrompt = () => {
+  customImagePrompt.value = ''
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorage.removeItem('CUSTOM_IMAGE_PROMPT')
+    alert('已恢复默认 Prompt 模板')
+  }
+}
+
+const saveApiKey = (key: string, value: string) => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    if (value) {
+      // 清理 API Key 后再保存
+      const cleaned = cleanApiKey(value)
+      
+      // 验证清理后的 Key 是否有效（长度应该合理）
+      if (cleaned.length < 10) {
+        console.warn('API Key 清理后长度过短，可能有问题:', {
+          key,
+          originalLength: value.length,
+          cleanedLength: cleaned.length,
+          originalPrefix: value.substring(0, 20),
+          cleanedPrefix: cleaned.substring(0, 20)
+        })
+      }
+      
+      localStorage.setItem(key, cleaned)
+      
+      // 如果是 API Key，同步更新显示的值
+      if (key === 'DEEPSEEK_API_KEY') {
+        deepseekApiKey.value = cleaned
+      } else if (key === 'GOOGLE_API_KEY') {
+        googleApiKey.value = cleaned
+      }
+      
+      console.log('API Key 已保存:', {
+        key,
+        length: cleaned.length,
+        prefix: cleaned.substring(0, 15) + '...'
+      })
+    } else {
+      localStorage.removeItem(key)
+    }
+  }
+}
+
+// 清理本地存储（API 密钥、历史记录、用户信息等）
+const clearLocalStorage = () => {
+  if (typeof window === 'undefined' || !window.localStorage) return
+
+  const confirmed = window.confirm(
+    '确定要清理本地存储吗？这将删除：\n\n' +
+    '- API 密钥（DEEPSEEK / GOOGLE）\n' +
+    '- 模拟模式 / 调试配置\n' +
+    '- 文本生成图文的中间状态\n' +
+    '- 用户与历史记录数据\n\n' +
+    '清理后需要重新配置 API 密钥，且历史记录将无法恢复。'
+  )
+  if (!confirmed) return
+
+  try {
+    const keys = Object.keys(localStorage)
+    keys.forEach((k) => {
+      if (
+        k.startsWith('DEEPSEEK_') ||
+        k.startsWith('GOOGLE_') ||
+        k === 'MOCK_MODE' ||
+        k === 'CUSTOM_IMAGE_PROMPT' ||
+        k === 'PROMPT_DEBUG_MODE' ||
+        k === 'text-generator-state' ||
+        k.startsWith('redflow_') ||
+        k === 'current_user'
+      ) {
+        localStorage.removeItem(k)
+      }
+    })
+    alert('本地存储已清理完毕。\n\n建议刷新页面后重新开始使用，并在此处重新配置 API Key。')
+  } catch (e) {
+    console.error('清理本地存储失败:', e)
+    alert('清理本地存储时发生错误，请查看控制台日志。')
+  }
+}
+
+onMounted(() => {
+  loadApiKeys()
+})
+</script>
+
+<style scoped>
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.config-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.config-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-body);
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.card-title-group h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: var(--text-main);
+}
+
+.card-subtitle {
+  font-size: 13px;
+  color: var(--text-sub);
+  margin: 0;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: var(--text-main);
+}
+
+.toggle-visibility {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-sub);
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.toggle-visibility:hover {
+  color: var(--primary);
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.api-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  transition: border-color 0.2s;
+  background: var(--bg-body);
+}
+
+.api-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-fade);
+}
+
+.api-input::placeholder {
+  color: var(--text-placeholder);
+  font-family: inherit;
+}
+
+.form-hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.form-hint a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.form-hint a:hover {
+  text-decoration: underline;
+}
+
+.prompt-textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  line-height: 1.6;
+  resize: vertical;
+  min-height: 200px;
+  transition: all 0.2s;
+}
+
+.prompt-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-fade);
+}
+
+.prompt-textarea::placeholder {
+  color: var(--text-placeholder);
+}
+
+.debug-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-sub);
+  cursor: pointer;
+  user-select: none;
+}
+
+.debug-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.debug-prompt-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-body);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.debug-prompt-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.debug-prompt-content {
+  max-height: 400px;
+  overflow-y: auto;
+  background: var(--bg-card);
+  padding: 12px;
+  border-radius: var(--radius-sm);
+}
+
+.debug-prompt-content pre {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-sub);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+}
+
+.form-hint code {
+  background: var(--bg-body);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  color: var(--primary);
+}
+
+.info-section {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.info-section h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--text-main);
+}
+
+.info-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.info-section li {
+  padding: 8px 0;
+  color: var(--text-sub);
+  line-height: 1.6;
+  position: relative;
+  padding-left: 20px;
+}
+
+.info-section li::before {
+  content: '•';
+  position: absolute;
+  left: 0;
+  color: var(--primary);
+  font-weight: bold;
+}
+
+.info-section li strong {
+  color: var(--primary);
+}
+
+.mock-mode-section {
+  margin-bottom: 32px;
+}
+
+.mock-mode-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  color: white;
+  box-shadow: var(--shadow-md);
+}
+
+.mock-mode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.mock-mode-header h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 4px 0;
+  color: white;
+}
+
+.mock-mode-desc {
+  font-size: 14px;
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.mock-mode-toggle {
+  position: relative;
+  display: inline-block;
+  width: 56px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.mock-mode-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.mock-mode-toggle .toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: 0.3s;
+  border-radius: 32px;
+}
+
+.mock-mode-toggle .toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 24px;
+  width: 24px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.mock-mode-toggle input:checked + .toggle-slider {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.mock-mode-toggle input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.mock-mode-notice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  backdrop-filter: blur(10px);
+}
+
+.mock-mode-notice svg {
+  flex-shrink: 0;
+}
+</style>
